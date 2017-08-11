@@ -71,10 +71,10 @@ namespace BotExample
         internal static string GetMove()
 
         {
-                return CounterSuicideBot();
+                return MirrorCounter();
         }
 
-        internal static string CounterSuicideBot()
+        internal static string DirectCounter()
         {
             switch (_lastOpponentsMove)
             
@@ -100,7 +100,12 @@ namespace BotExample
             }
      
         }
-             
+
+        internal static string MirrorCounter()
+        {
+            return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
+        }
+
 
         internal static bool IsMirrorBot()
         {
