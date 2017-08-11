@@ -28,7 +28,7 @@ namespace BotExample
          *
          * POST http://<your_bot_url>/start
          *
-         */ 
+         */
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
             _opponentName = opponentName;
@@ -43,13 +43,13 @@ namespace BotExample
          *
          * POST http://<your_bot_url>/move
          *
-         */ 
+         */
         public static void DecrementOpponentsDynamiteCount()
         {
             if (_lastOpponentsMove == "DYNAMITE")
             {
                 opponentsDynamiteCount--;
-            } 
+            }
         }
 
         public static void StoreOpponentsMoves()
@@ -57,7 +57,7 @@ namespace BotExample
             _opponentsMoves.Add(_lastOpponentsMove);
         }
         public static void SetLastOpponentsMove(string lastOpponentsMove)
-        {           
+        {
             _lastOpponentsMove = lastOpponentsMove;
             DecrementOpponentsDynamiteCount();
             StoreOpponentsMoves();
@@ -67,38 +67,35 @@ namespace BotExample
          *
          * GET http://<your_bot_url>/move
          *
-         */ 
+         */
         internal static string GetMove()
-
         {
-                return MirrorCounter();
+            return MirrorCounter();
         }
 
         internal static string DirectCounter()
         {
             switch (_lastOpponentsMove)
-            
+
             {
                 case "PAPER":
-                {
-                    return "SCISSORS";
-                }
+                    {
+                        return "SCISSORS";
+                    }
                 case "SCISSORS":
-                {
-                    return "ROCK";
+                    {
+                        return "ROCK";
 
-                }
+                    }
                 case "DYNAMITE":
-                {
-                    return "WATERBOMB";
-                }
+                    {
+                        return "WATERBOMB";
+                    }
                 default:
-                {
-                    return "PAPER";
-                }
-
+                    {
+                        return "PAPER";
+                    }
             }
-     
         }
 
         internal static string MirrorCounter()
@@ -111,9 +108,9 @@ namespace BotExample
         {
             try
             {
-               string expectedMirr =  "ROCKROCKROCK";
-               string firstThree = "";
-               if (_opponentsMoves.Count >= 3)
+                string expectedMirr = "ROCKROCKROCK";
+                string firstThree = "";
+                if (_opponentsMoves.Count >= 3)
                 {
                     for (int i = 0; i < 3; i++)
                     {
@@ -137,24 +134,7 @@ namespace BotExample
 
         internal static string GetRandomResponse()
         {
-            Console.WriteLine(opponentsDynamiteCount);
-
-            int NumberOfWeapons;
-
-            if (_ourDynamite == 0)
-            {
-                NumberOfWeapons = 4;
-            }
-            else if (opponentsDynamiteCount == 0)
-            {
-                NumberOfWeapons = 3;
-            }
-            else
-            {
-                NumberOfWeapons = 5;
-            }
-            
-            int rnd = random.Next(NumberOfWeapons);
+            int rnd = random.Next(3);
             switch (rnd)
             {
                 case 0:
@@ -165,20 +145,12 @@ namespace BotExample
                     {
                         return "SCISSORS";
                     }
-                case 2:
+                default:
                     {
                         return "PAPER";
                     }
-                case 3:
-                {
-                    return "WATERBOMB";
-                }
-                default:
-                    {
-                        _ourDynamite--;
-                        return "DYNAMITE";
-                    }
+
             }
-        }       
+        }
     }
 }
