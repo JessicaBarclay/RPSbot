@@ -70,10 +70,28 @@ namespace BotExample
          */
         internal static string GetMove()
         {
-            return MirrorCounter();
+            int rnd = random.Next(3);
+            switch (rnd)
+            {
+                case 0:
+                    {
+                        Console.WriteLine("This is the Direct Counter Strategy");
+                        return DirectCounterStrategy();
+                    }
+                case 1:
+                    {
+                        Console.WriteLine("This is the Mirror Strategy");
+                        return MirrorStrategy();
+                    }
+                default:
+                    {
+                        Console.WriteLine("This is the Random Strategy");
+                        return RandomStrategy();
+                    }
+            }
         }
 
-        internal static string DirectCounter()
+        internal static string DirectCounterStrategy()
         {
             switch (_lastOpponentsMove)
 
@@ -98,7 +116,7 @@ namespace BotExample
             }
         }
 
-        internal static string MirrorCounter()
+        internal static string MirrorStrategy()
         {
             return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
         }
@@ -132,7 +150,7 @@ namespace BotExample
             }
         }
 
-        internal static string GetRandomResponse()
+        internal static string RandomStrategy()
         {
             int rnd = random.Next(3);
             switch (rnd)
