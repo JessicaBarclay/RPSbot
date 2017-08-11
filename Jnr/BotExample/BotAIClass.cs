@@ -30,7 +30,7 @@ namespace BotExample
          *
          * POST http://<your_bot_url>/start
          *
-         */ 
+         */
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
             _opponentName = opponentName;
@@ -47,13 +47,13 @@ namespace BotExample
          *
          * POST http://<your_bot_url>/move
          *
-         */ 
+         */
         public static void DecrementOpponentsDynamiteCount()
         {
             if (_lastOpponentsMove == "DYNAMITE")
             {
                 opponentsDynamiteCount--;
-            } 
+            }
         }
 
         public static void StoreOpponentsMoves()
@@ -62,7 +62,7 @@ namespace BotExample
         }
 
         public static void SetLastOpponentsMove(string lastOpponentsMove)
-        {           
+        {
             _lastOpponentsMove = lastOpponentsMove;
             DecrementOpponentsDynamiteCount();
             StoreOpponentsMoves();
@@ -71,7 +71,6 @@ namespace BotExample
         /* Method called when move instruction is received requesting your move
          *
          * GET http://<your_bot_url>/move
-         *
          */ 
         
         internal static void StoreOurCurrentMove(string myMove)
@@ -88,41 +87,116 @@ namespace BotExample
             return "Don't know who won, sorry";
         }
 
-
         internal static string GetMove()
         {
-            string ourMove = CounterSuicideBot();
+            string ourMove = GetStrategy();
             StoreOurCurrentMove(ourMove);
             GetResultOfLastRound();
             _currentRound++;
             return ourMove;
         }
 
-        internal static string CounterSuicideBot()
+        internal static string GetStrategy()
+        {
+            int rnd = random.Next(3);
+            switch (rnd)
+            {
+                case 0:
+                    {
+                        Console.WriteLine("This is the Direct Counter Strategy");
+                        return DirectCounterStrategy();
+                    }
+                case 1:
+                    {
+                        Console.WriteLine("This is the Mirror Strategy");
+                        return MirrorStrategy();
+                    }
+                default:
+                    {
+                        Console.WriteLine("This is the Random Strategy");
+                        return RandomStrategy();
+                    }
+            }
+        }
+
+        internal static string DirectCounterStrategy()
         {
             switch (_lastOpponentsMove)
-            
+
             {
                 case "PAPER":
-                {
-                    return "SCISSORS";
-                }
+                    {
+                        return "SCISSORS";
+                    }
                 case "SCISSORS":
-                {
-                    return "ROCK";
+                    {
+                        return "ROCK";
 
-                }
+                    }
                 case "DYNAMITE":
-                {
-                    return "WATERBOMB";
-                }
+                    {
+                        return "WATERBOMB";
+                    }
                 default:
+                    {
+                        return "PAPER";
+                    }
+            }
+        }
+
+        internal static string MirrorStrategy()
+        {
+            return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
+        }
+
+
+        internal static bool IsMirrorBot()
+        {
+            try
+            {
+                string expectedMirr = "ROCKROCKROCK";
+                string firstThree = "";
+                if (_opponentsMoves.Count >= 3)
                 {
-                    return "PAPER";
+                    for (int i = 0; i < 3; i++)
+                    {
+                        firstThree += _opponentsMoves[i];
+                    }
                 }
+                if (expectedMirr == firstThree)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        internal static string RandomStrategy()
+        {
+            int rnd = random.Next(3);
+            switch (rnd)
+            {
+                case 0:
+                    {
+                        return "ROCK";
+                    }
+                case 1:
+                    {
+                        return "SCISSORS";
+                    }
+                default:
+                    {
+                        return "PAPER";
+                    }
 
             }
-     
         }
     }
 }
