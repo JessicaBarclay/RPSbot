@@ -23,6 +23,8 @@ namespace BotExample
         public static int _ourDynamite;
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
+        private static List<string> _ourMoves;
+        public static int _currentRound;
 
         /* Method called when start instruction is received
          *
@@ -37,6 +39,8 @@ namespace BotExample
             _ourDynamite = dynamite;
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
+            _ourMoves = new List<string>();
+            _currentRound = 0;
         }
 
         /* Method called when move instruction is received instructing opponents move
@@ -56,6 +60,7 @@ namespace BotExample
         {
             _opponentsMoves.Add(_lastOpponentsMove);
         }
+
         public static void SetLastOpponentsMove(string lastOpponentsMove)
         {           
             _lastOpponentsMove = lastOpponentsMove;
@@ -68,10 +73,29 @@ namespace BotExample
          * GET http://<your_bot_url>/move
          *
          */ 
-        internal static string GetMove()
-
+        
+        internal static void StoreOurCurrentMove(string myMove)
         {
-                return CounterSuicideBot();
+            _ourMoves.Add(myMove);
+        }
+
+        internal static string GetResultOfLastRound()
+        {
+            if (_currentRound >= 1 && _ourMoves[_currentRound -1] == _lastOpponentsMove)
+            {
+                return "DRAW";
+            }
+            return "Don't know who won, sorry";
+        }
+
+
+        internal static string GetMove()
+        {
+            string ourMove = CounterSuicideBot();
+            StoreOurCurrentMove(ourMove);
+            GetResultOfLastRound();
+            _currentRound++;
+            return ourMove;
         }
 
         internal static string CounterSuicideBot()
@@ -100,80 +124,5 @@ namespace BotExample
             }
      
         }
-             
-
-        internal static bool IsMirrorBot()
-        {
-            try
-            {
-               string expectedMirr =  "ROCKROCKROCK";
-               string firstThree = "";
-               if (_opponentsMoves.Count >= 3)
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        firstThree += _opponentsMoves[i];
-                    }
-                }
-                if (expectedMirr == firstThree)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        internal static string GetRandomResponse()
-        {
-            Console.WriteLine(opponentsDynamiteCount);
-
-            int NumberOfWeapons;
-
-            if (_ourDynamite == 0)
-            {
-                NumberOfWeapons = 4;
-            }
-            else if (opponentsDynamiteCount == 0)
-            {
-                NumberOfWeapons = 3;
-            }
-            else
-            {
-                NumberOfWeapons = 5;
-            }
-            
-            int rnd = random.Next(NumberOfWeapons);
-            switch (rnd)
-            {
-                case 0:
-                    {
-                        return "ROCK";
-                    }
-                case 1:
-                    {
-                        return "SCISSORS";
-                    }
-                case 2:
-                    {
-                        return "PAPER";
-                    }
-                case 3:
-                {
-                    return "WATERBOMB";
-                }
-                default:
-                    {
-                        _ourDynamite--;
-                        return "DYNAMITE";
-                    }
-            }
-        }       
     }
 }
