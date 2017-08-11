@@ -24,6 +24,7 @@ namespace BotExample
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
         private static List<string> _ourMoves;
+        private static List<string> _results;
         public static int _currentRound;
 
         /* Method called when start instruction is received
@@ -40,6 +41,7 @@ namespace BotExample
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
             _ourMoves = new List<string>();
+            _results = new List<string>();
             _currentRound = 0;
         }
 
@@ -80,11 +82,25 @@ namespace BotExample
 
         internal static string GetResultOfLastRound()
         {
-            if (_currentRound >= 1 && _ourMoves[_currentRound -1] == _lastOpponentsMove)
+            if (_currentRound >= 1)
             {
-                return "DRAW";
+                if (_ourMoves[_currentRound - 1] == _lastOpponentsMove)
+                {
+                    _results.Add("DRAW");
+                    return "DRAW";
+                }
+                else if (_ourMoves[_currentRound - 1] == "PAPER" && _lastOpponentsMove == "ROCK")
+                { 
+                    _results.Add("WIN");
+                    return "WIN";
+                }
+                else
+                {
+                    _results.Add("Don't know who won, sorry");
+                    return "Don't know who won, sorry";
+                }
             }
-            return "Don't know who won, sorry";
+            return null;
         }
 
         internal static string GetMove()
@@ -93,6 +109,7 @@ namespace BotExample
             StoreOurCurrentMove(ourMove);
             GetResultOfLastRound();
             _currentRound++;
+            _results.ForEach(i => Console.WriteLine(i));
             return ourMove;
         }
 
