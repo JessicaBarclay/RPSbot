@@ -23,12 +23,13 @@ namespace BotExample
         public static int _ourDynamite;
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
+        public static string mockedResult;
 
         /* Method called when start instruction is received
          *
          * POST http://<your_bot_url>/start
          *
-         */ 
+         */
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
             _opponentName = opponentName;
@@ -37,19 +38,20 @@ namespace BotExample
             _ourDynamite = dynamite;
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
+            mockedResult = "DRAW";
         }
 
         /* Method called when move instruction is received instructing opponents move
          *
          * POST http://<your_bot_url>/move
          *
-         */ 
+         */
         public static void DecrementOpponentsDynamiteCount()
         {
             if (_lastOpponentsMove == "DYNAMITE")
             {
                 opponentsDynamiteCount--;
-            } 
+            }
         }
 
         public static void StoreOpponentsMoves()
@@ -57,58 +59,91 @@ namespace BotExample
             _opponentsMoves.Add(_lastOpponentsMove);
         }
         public static void SetLastOpponentsMove(string lastOpponentsMove)
-        {           
+        {
             _lastOpponentsMove = lastOpponentsMove;
             DecrementOpponentsDynamiteCount();
             StoreOpponentsMoves();
         }
 
-        /* Method called when move instruction is received requesting your move
-         *
-         * GET http://<your_bot_url>/move
-         *
-         */ 
-        internal static string GetMove()
 
+        internal static string responseIfDraw()
         {
-                return CounterSuicideBot();
+            if (_ourDynamite != 0 && mockedResult == "DRAW")
+            {
+                _ourDynamite--;
+                return "DYNAMITE";
+            }
+
+            return SwitchStrategies();
         }
 
-        internal static string CounterSuicideBot()
+        internal static string SwitchStrategies()
+        {
+            int rnd = random.Next(3);
+            switch (rnd)
+            {
+                case 0:
+                    {
+                        Console.WriteLine("this is the direct counter strategy");
+                        return DirectCounterStrategy();
+                    }
+                case 1:
+                    {
+                        Console.WriteLine("this is the mirror strategy");
+                        return MirrorStrategy();
+                    }
+                default:
+                    {
+                        Console.WriteLine("this is the random strategy");
+                        return RandomStrategy();
+                    }
+            }
+        }
+
+        internal static string GetMove()
+        {
+            return responseIfDraw();
+
+        }
+
+        internal static string DirectCounterStrategy()
         {
             switch (_lastOpponentsMove)
-            
+
             {
                 case "PAPER":
-                {
-                    return "SCISSORS";
-                }
+                    {
+                        return "SCISSORS";
+                    }
                 case "SCISSORS":
-                {
-                    return "ROCK";
+                    {
+                        return "ROCK";
 
-                }
+                    }
                 case "DYNAMITE":
-                {
-                    return "WATERBOMB";
-                }
+                    {
+                        return "WATERBOMB";
+                    }
                 default:
-                {
-                    return "PAPER";
-                }
-
+                    {
+                        return "PAPER";
+                    }
             }
-     
         }
-             
+
+        internal static string MirrorStrategy()
+        {
+            return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
+        }
+
 
         internal static bool IsMirrorBot()
         {
             try
             {
-               string expectedMirr =  "ROCKROCKROCK";
-               string firstThree = "";
-               if (_opponentsMoves.Count >= 3)
+                string expectedMirr = "ROCKROCKROCK";
+                string firstThree = "";
+                if (_opponentsMoves.Count >= 3)
                 {
                     for (int i = 0; i < 3; i++)
                     {
@@ -130,26 +165,9 @@ namespace BotExample
             }
         }
 
-        internal static string GetRandomResponse()
+        internal static string RandomStrategy()
         {
-            Console.WriteLine(opponentsDynamiteCount);
-
-            int NumberOfWeapons;
-
-            if (_ourDynamite == 0)
-            {
-                NumberOfWeapons = 4;
-            }
-            else if (opponentsDynamiteCount == 0)
-            {
-                NumberOfWeapons = 3;
-            }
-            else
-            {
-                NumberOfWeapons = 5;
-            }
-            
-            int rnd = random.Next(NumberOfWeapons);
+            int rnd = random.Next(3);
             switch (rnd)
             {
                 case 0:
@@ -160,20 +178,12 @@ namespace BotExample
                     {
                         return "SCISSORS";
                     }
-                case 2:
+                default:
                     {
                         return "PAPER";
                     }
-                case 3:
-                {
-                    return "WATERBOMB";
-                }
-                default:
-                    {
-                        _ourDynamite--;
-                        return "DYNAMITE";
-                    }
+
             }
-        }       
+        }
     }
 }
