@@ -24,7 +24,9 @@ namespace BotExample
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
         private static List<string> _ourMoves;
+        private static List<string> _results;
         public static int _currentRound;
+        public static string[] winList;
 
         /* Method called when start instruction is received
          *
@@ -40,8 +42,18 @@ namespace BotExample
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
             _ourMoves = new List<string>();
+            _results = new List<string>();
             _currentRound = 0;
+            winList = new string[]{
+                "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
+                "ROCKWATERBOMB","ROCKSCISSORS",
+                "PAPERWATERBOMB","PAPERROCK",
+                "SCISSORSWATERBOMB","SCISSORSPAPER",
+                "WATERBOMBDYNAMITE"
+            };
         }
+
+   
 
         /* Method called when move instruction is received instructing opponents move
          *
@@ -75,24 +87,61 @@ namespace BotExample
         
         internal static void StoreOurCurrentMove(string myMove)
         {
-            _ourMoves.Add(myMove);
+            if (_currentRound >= 1)
+            {
+                _ourMoves.Add(myMove);
+            }
         }
 
         internal static string GetResultOfLastRound()
         {
-            if (_currentRound >= 1 && _ourMoves[_currentRound -1] == _lastOpponentsMove)
+            if (_currentRound >= 1)
             {
-                return "DRAW";
+                if (_ourMoves[_currentRound - 1] == _lastOpponentsMove)
+                {
+                    _results.Add("DRAW");
+                    return "DRAW";
+                }
+                else if (DidIWin() == true)
+                { 
+                    _results.Add("WIN");
+                    return "WIN";
+                }
+                else
+                {
+                    _results.Add("LOSE");
+                    return "LOSE";
+                }
             }
-            return "Don't know who won, sorry";
+            return null;
         }
+
+        public static bool DidIWin()
+        {
+            string lastResult = (_ourMoves[_currentRound - 1] + _lastOpponentsMove);
+            int position = 0;
+            for (position = 0; position < winList.Length; position++)
+            {
+                if (winList[position] == lastResult)
+                {
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
+
+
 
         internal static string GetMove()
         {
             string ourMove = GetStrategy();
             StoreOurCurrentMove(ourMove);
+            // GetResultOfLastRound is actually returning the result of the current Round...
             GetResultOfLastRound();
             _currentRound++;
+            _results.ForEach(i => Console.WriteLine(i));
             return ourMove;
         }
 
