@@ -1,4 +1,3 @@
-﻿using System;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,16 +22,12 @@ namespace BotExample
         public static int _ourDynamite;
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
+        public static string mockedResult;
         private static List<string> _ourMoves;
         private static List<string> _results;
         public static int _currentRound;
         public static string[] winList;
 
-        /* Method called when start instruction is received
-         *
-         * POST http://<your_bot_url>/start
-         *
-         */
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
             _opponentName = opponentName;
@@ -41,6 +36,7 @@ namespace BotExample
             _ourDynamite = dynamite;
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
+            mockedResult = "DRAW";
             _ourMoves = new List<string>();
             _results = new List<string>();
             _currentRound = 0;
@@ -52,14 +48,7 @@ namespace BotExample
                 "WATERBOMBDYNAMITE"
             };
         }
-
-   
-
-        /* Method called when move instruction is received instructing opponents move
-         *
-         * POST http://<your_bot_url>/move
-         *
-         */
+      
         public static void DecrementOpponentsDynamiteCount()
         {
             if (_lastOpponentsMove == "DYNAMITE")
@@ -80,10 +69,69 @@ namespace BotExample
             StoreOpponentsMoves();
         }
 
-        /* Method called when move instruction is received requesting your move
-         *
-         * GET http://<your_bot_url>/move
-         */ 
+        internal static string responseIfDraw()
+        {
+            if (_ourDynamite != 0 && mockedResult == "DRAW")
+            {
+                _ourDynamite--;
+                return "DYNAMITE";
+            }
+
+            return SwitchStrategies();
+        }
+
+        internal static string SwitchStrategies()
+        {
+            int rnd = random.Next(3);
+            switch (rnd)
+            {
+                case 0:
+                    {
+                        Console.WriteLine("this is the direct counter strategy");
+                        return DirectCounterStrategy();
+                    }
+                case 1:
+                    {
+                        Console.WriteLine("this is the mirror strategy");
+                        return MirrorStrategy();
+                    }
+                default:
+                    {
+                        Console.WriteLine("this is the random strategy");
+                        return RandomStrategy();
+                    }
+            }
+        }
+
+        internal static string DirectCounterStrategy()
+        {
+            switch (_lastOpponentsMove)
+
+            {
+                case "PAPER":
+                    {
+                        return "SCISSORS";
+                    }
+                case "SCISSORS":
+                    {
+                        return "ROCK";
+
+                    }
+                case "DYNAMITE":
+                    {
+                        return "WATERBOMB";
+                    }
+                default:
+                    {
+                        return "PAPER";
+                    }
+            }
+        }
+
+        internal static string MirrorStrategy()
+        {
+            return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
+        }
         
         internal static void StoreOurCurrentMove(string myMove)
         {
@@ -131,12 +179,9 @@ namespace BotExample
             return false;
         }
 
-
-
-
         internal static string GetMove()
         {
-            string ourMove = GetStrategy();
+            string ourMove = SwitchStrategies();
             StoreOurCurrentMove(ourMove);
             // GetResultOfLastRound is actually returning the result of the current Round...
             GetResultOfLastRound();
@@ -144,60 +189,6 @@ namespace BotExample
             _results.ForEach(i => Console.WriteLine(i));
             return ourMove;
         }
-
-        internal static string GetStrategy()
-        {
-            int rnd = random.Next(3);
-            switch (rnd)
-            {
-                case 0:
-                    {
-                        Console.WriteLine("This is the Direct Counter Strategy");
-                        return DirectCounterStrategy();
-                    }
-                case 1:
-                    {
-                        Console.WriteLine("This is the Mirror Strategy");
-                        return MirrorStrategy();
-                    }
-                default:
-                    {
-                        Console.WriteLine("This is the Random Strategy");
-                        return RandomStrategy();
-                    }
-            }
-        }
-
-        internal static string DirectCounterStrategy()
-        {
-            switch (_lastOpponentsMove)
-
-            {
-                case "PAPER":
-                    {
-                        return "SCISSORS";
-                    }
-                case "SCISSORS":
-                    {
-                        return "ROCK";
-
-                    }
-                case "DYNAMITE":
-                    {
-                        return "WATERBOMB";
-                    }
-                default:
-                    {
-                        return "PAPER";
-                    }
-            }
-        }
-
-        internal static string MirrorStrategy()
-        {
-            return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
-        }
-
 
         internal static bool IsMirrorBot()
         {
@@ -244,7 +235,6 @@ namespace BotExample
                     {
                         return "PAPER";
                     }
-
             }
         }
     }
