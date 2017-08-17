@@ -1,14 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
-using System.IO;
-using System.Threading;
 
 namespace BotExample
 {
@@ -29,8 +20,9 @@ namespace BotExample
         public static string[] winList;
         private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
         private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
+        private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
 
-       internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
+        internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
             _opponentName = opponentName;
             _pointstoWin = pointstoWin;
@@ -42,13 +34,11 @@ namespace BotExample
             _ourMoves = new List<string>();
             _results = new List<string>();
             _currentRound = 0;
-            winList = new string[]{
-                "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
-                "ROCKWATERBOMB","ROCKSCISSORS",
-                "PAPERWATERBOMB","PAPERROCK",
-                "SCISSORSWATERBOMB","SCISSORSPAPER",
-                "WATERBOMBDYNAMITE"
-            };
+            winList = new string[] {
+                                    "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
+                                    "ROCKWATERBOMB","ROCKSCISSORS", "PAPERWATERBOMB","PAPERROCK",
+                                    "SCISSORSWATERBOMB","SCISSORSPAPER", "WATERBOMBDYNAMITE"
+                                   };
         }
       
         public static void DecrementOpponentsDynamiteCount()
@@ -86,52 +76,25 @@ namespace BotExample
             {
                 case 0:
                     {
-                        Console.WriteLine("this is the direct counter strategy");
-                        return DirectCounterStrategy();
+                        Console.WriteLine("---------> Direct <---------");
+                        return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
                     }
                 case 1:
                     {
-                        Console.WriteLine("this is the mirror strategy");
+                        Console.WriteLine("---------> Mirror <---------");
                         return _MirrorStrategy.GetMove(_lastOpponentsMove);
                     }
                 default:
                     {
-                        Console.WriteLine("this is the random strategy");
+                        Console.WriteLine("---------> Random <---------");
                         return _RandomStrategy.GetMove();
-                    }
-            }
-        }
-
-        internal static string DirectCounterStrategy()
-        {
-            switch (_lastOpponentsMove)
-            {
-                case "PAPER":
-                    {
-                        return "SCISSORS";
-                    }
-                case "SCISSORS":
-                    {
-                        return "ROCK";
-
-                    }
-                case "DYNAMITE":
-                    {
-                        return "WATERBOMB";
-                    }
-                default:
-                    {
-                        return "PAPER";
                     }
             }
         }
         
         internal static void StoreOurCurrentMove(string myMove)
         {
-            if (_currentRound >= 1)
-            {
-                _ourMoves.Add(myMove);
-            }
+            if (_currentRound >= 1) _ourMoves.Add(myMove);
         }
 
         internal static string GetResultOfLastRound()
@@ -196,14 +159,7 @@ namespace BotExample
                         firstThree += _opponentsMoves[i];
                     }
                 }
-                if (expectedMirr == firstThree)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return expectedMirr == firstThree ? true : false;
             }
             catch
             {
