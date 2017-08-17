@@ -14,7 +14,7 @@ namespace BotExample
 {
     internal static class BotAIClass
     {
-        private static Random random = new System.Random(Environment.TickCount);
+        private static readonly Random random = new System.Random(Environment.TickCount);
         private static string _opponentName;
         private static string _lastOpponentsMove;
         private static int _pointstoWin;
@@ -28,8 +28,9 @@ namespace BotExample
         public static int _currentRound;
         public static string[] winList;
         private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
+        private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
 
-        internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
+       internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
             _opponentName = opponentName;
             _pointstoWin = pointstoWin;
@@ -52,10 +53,7 @@ namespace BotExample
       
         public static void DecrementOpponentsDynamiteCount()
         {
-            if (_lastOpponentsMove == "DYNAMITE")
-            {
-                opponentsDynamiteCount--;
-            }
+            if (_lastOpponentsMove == "DYNAMITE") opponentsDynamiteCount--;
         }
 
         public static void StoreOpponentsMoves()
@@ -99,7 +97,7 @@ namespace BotExample
                 default:
                     {
                         Console.WriteLine("this is the random strategy");
-                        return RandomStrategy();
+                        return _RandomStrategy.GetMove();
                     }
             }
         }
@@ -210,26 +208,6 @@ namespace BotExample
             catch
             {
                 return false;
-            }
-        }
-
-        internal static string RandomStrategy()
-        {
-            int rnd = random.Next(3);
-            switch (rnd)
-            {
-                case 0:
-                    {
-                        return "ROCK";
-                    }
-                case 1:
-                    {
-                        return "SCISSORS";
-                    }
-                default:
-                    {
-                        return "PAPER";
-                    }
             }
         }
     }
