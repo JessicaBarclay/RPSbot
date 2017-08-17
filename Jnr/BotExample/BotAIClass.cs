@@ -27,6 +27,7 @@ namespace BotExample
         private static List<string> _results;
         public static int _currentRound;
         public static string[] winList;
+        private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
@@ -93,7 +94,7 @@ namespace BotExample
                 case 1:
                     {
                         Console.WriteLine("this is the mirror strategy");
-                        return MirrorStrategy();
+                        return _MirrorStrategy.GetMove(_lastOpponentsMove);
                     }
                 default:
                     {
@@ -106,7 +107,6 @@ namespace BotExample
         internal static string DirectCounterStrategy()
         {
             switch (_lastOpponentsMove)
-
             {
                 case "PAPER":
                     {
@@ -127,11 +127,6 @@ namespace BotExample
                     }
             }
         }
-
-        internal static string MirrorStrategy()
-        {
-            return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
-        }
         
         internal static void StoreOurCurrentMove(string myMove)
         {
@@ -150,7 +145,7 @@ namespace BotExample
                     _results.Add("DRAW");
                     return "DRAW";
                 }
-                else if (DidIWin() == true)
+                else if (DidIWin())
                 { 
                     _results.Add("WIN");
                     return "WIN";
@@ -181,12 +176,12 @@ namespace BotExample
 
         internal static string GetMove()
         {
-            string ourMove = SwitchStrategies();
-            StoreOurCurrentMove(ourMove);
-            // GetResultOfLastRound is actually returning the result of the current Round...
-            GetResultOfLastRound();
-            _currentRound++;
-            _results.ForEach(i => Console.WriteLine(i));
+            var ourMove = SwitchStrategies();
+            //StoreOurCurrentMove(ourMove);
+            //// GetResultOfLastRound is actually returning the result of the current Round...
+            //GetResultOfLastRound();
+            //_currentRound++;
+            //_results.ForEach(i => Console.WriteLine(i));
             return ourMove;
         }
 
