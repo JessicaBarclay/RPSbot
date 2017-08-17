@@ -21,6 +21,7 @@ namespace BotExample
         private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
         private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
         private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
+        private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
@@ -65,7 +66,6 @@ namespace BotExample
                 _ourDynamite--;
                 return "DYNAMITE";
             }
-
             return SwitchStrategies();
         }
 
@@ -122,15 +122,11 @@ namespace BotExample
 
         public static bool DidIWin()
         {
-            string lastResult = (_ourMoves[_currentRound - 1] + _lastOpponentsMove);
+            string lastResult = _ourMoves[_currentRound - 1] + _lastOpponentsMove;
             int position = 0;
             for (position = 0; position < winList.Length; position++)
             {
-                if (winList[position] == lastResult)
-                {
-                    return true;
-                }
-
+                if (winList[position] == lastResult) return true;
             }
             return false;
         }
@@ -138,33 +134,11 @@ namespace BotExample
         internal static string GetMove()
         {
             var ourMove = SwitchStrategies();
-            //StoreOurCurrentMove(ourMove);
-            //// GetResultOfLastRound is actually returning the result of the current Round...
-            //GetResultOfLastRound();
-            //_currentRound++;
-            //_results.ForEach(i => Console.WriteLine(i));
+            StoreOurCurrentMove(ourMove);
+            // GetResultOfLastRound is actually returning the result of the current Round...
+            GetResultOfLastRound();
+            _currentRound++;
             return ourMove;
-        }
-
-        internal static bool IsMirrorBot()
-        {
-            try
-            {
-                string expectedMirr = "ROCKROCKROCK";
-                string firstThree = "";
-                if (_opponentsMoves.Count >= 3)
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        firstThree += _opponentsMoves[i];
-                    }
-                }
-                return expectedMirr == firstThree ? true : false;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }
