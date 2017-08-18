@@ -16,6 +16,7 @@ namespace BotExample
         public static string mockedResult;
         public static int _currentRound;
         public static string[] winList;
+        public static string ourPreviousMove;
         private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
         private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
         private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
@@ -24,7 +25,7 @@ namespace BotExample
         private static readonly Results _Results = 
             new Results { 
                             Win = 0,
-                            Lose = 0,
+                            Lose = -1,
                             Draw = 0
                         };
 
@@ -38,6 +39,7 @@ namespace BotExample
             _opponentsMoves = new List<string>();
             mockedResult = "DRAW";
             _currentRound = 0;
+            ourPreviousMove = "";
             winList = new string[] {
                                     "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
                                     "ROCKWATERBOMB","ROCKSCISSORS", "PAPERWATERBOMB","PAPERROCK",
@@ -79,17 +81,17 @@ namespace BotExample
             {
                 case 0:
                     {
-                        Console.WriteLine("---------> Direct <---------");
+                        Console.WriteLine("Strategy: Direct");
                         return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
                     }
                 case 1:
                     {
-                        Console.WriteLine("---------> Mirror <---------");
+                        Console.WriteLine("Strategy: Mirror");
                         return _MirrorStrategy.GetMove(_lastOpponentsMove);
                     }
                 default:
                     {
-                        Console.WriteLine("---------> Random <---------");
+                        Console.WriteLine("Strategy: Random");
                         return _RandomStrategy.GetMove();
                     }
             }
@@ -104,32 +106,31 @@ namespace BotExample
         {
             if (_currentRound >= 1)
             {
-                if (_Results.ourMoves[_currentRound - 1] == _lastOpponentsMove)
+                if (ourPreviousMove == _lastOpponentsMove)
                 {
                     _Results.ListOfResults.Add("DRAW");
                     _Results.Draw += 1;
                     return "DRAW";
                 }
-                else if (DidIWin())
+
+                if (DidIWin())
                 {
                     _Results.ListOfResults.Add("WIN");
                     _Results.Win += 1;
                     return "WIN";
                 }
-                else
-                {
-                    _Results.ListOfResults.Add("LOSE");
-                    _Results.Lose += 1;
-                    return "LOSE";
-                }
+
+                _Results.ListOfResults.Add("LOSE");
+                _Results.Lose += 1;
+                return "LOSE";
             }
             return null;
         }
 
         public static bool DidIWin()
         {
-            string lastResult = _Results.ourMoves[_currentRound - 1] + _lastOpponentsMove;
-            int position = 0;
+            string lastResult = ourPreviousMove + _lastOpponentsMove;
+            int position;
             for (position = 0; position < winList.Length; position++)
             {
                 if (winList[position] == lastResult) return true;
@@ -139,14 +140,16 @@ namespace BotExample
 
         internal static string GetMove()
         {
+            _currentRound++;
+            var ourMove = SwitchStrategies();
+            StoreOurCurrentMove(ourMove);
+            GetResultOfLastRound();
+            ourPreviousMove = ourMove;
             Console.WriteLine("Round " + _currentRound);
             Console.WriteLine("Win:  " + _Results.Win);
             Console.WriteLine("Lose: " + _Results.Lose);
             Console.WriteLine("Draw: " + _Results.Draw);
-            var ourMove = SwitchStrategies();
-            StoreOurCurrentMove(ourMove);
-            GetResultOfLastRound();
-            _currentRound++;
+            Console.WriteLine("-----------------------------------");
             return ourMove;
         }
     }
