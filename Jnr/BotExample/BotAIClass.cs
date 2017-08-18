@@ -1,20 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
-using System.IO;
-using System.Threading;
 
 namespace BotExample
 {
     internal static class BotAIClass
     {
-        private static Random random = new System.Random(Environment.TickCount);
+        private static readonly Random random = new System.Random(Environment.TickCount);
         private static string _opponentName;
         private static string _lastOpponentsMove;
         private static int _pointstoWin;
@@ -27,6 +18,10 @@ namespace BotExample
         private static List<string> _results;
         public static int _currentRound;
         public static string[] winList;
+        private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
+        private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
+        private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
+        private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
@@ -40,21 +35,16 @@ namespace BotExample
             _ourMoves = new List<string>();
             _results = new List<string>();
             _currentRound = 0;
-            winList = new string[]{
-                "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
-                "ROCKWATERBOMB","ROCKSCISSORS",
-                "PAPERWATERBOMB","PAPERROCK",
-                "SCISSORSWATERBOMB","SCISSORSPAPER",
-                "WATERBOMBDYNAMITE"
-            };
+            winList = new string[] {
+                                    "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
+                                    "ROCKWATERBOMB","ROCKSCISSORS", "PAPERWATERBOMB","PAPERROCK",
+                                    "SCISSORSWATERBOMB","SCISSORSPAPER", "WATERBOMBDYNAMITE"
+                                   };
         }
       
         public static void DecrementOpponentsDynamiteCount()
         {
-            if (_lastOpponentsMove == "DYNAMITE")
-            {
-                opponentsDynamiteCount--;
-            }
+            if (_lastOpponentsMove == "DYNAMITE") opponentsDynamiteCount--;
         }
 
         public static void StoreOpponentsMoves()
@@ -76,7 +66,6 @@ namespace BotExample
                 _ourDynamite--;
                 return "DYNAMITE";
             }
-
             return SwitchStrategies();
         }
 
@@ -87,58 +76,25 @@ namespace BotExample
             {
                 case 0:
                     {
-                        Console.WriteLine("this is the direct counter strategy");
-                        return DirectCounterStrategy();
+                        Console.WriteLine("---------> Direct <---------");
+                        return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
                     }
                 case 1:
                     {
-                        Console.WriteLine("this is the mirror strategy");
-                        return MirrorStrategy();
+                        Console.WriteLine("---------> Mirror <---------");
+                        return _MirrorStrategy.GetMove(_lastOpponentsMove);
                     }
                 default:
                     {
-                        Console.WriteLine("this is the random strategy");
-                        return RandomStrategy();
+                        Console.WriteLine("---------> Random <---------");
+                        return _RandomStrategy.GetMove();
                     }
             }
-        }
-
-        internal static string DirectCounterStrategy()
-        {
-            switch (_lastOpponentsMove)
-
-            {
-                case "PAPER":
-                    {
-                        return "SCISSORS";
-                    }
-                case "SCISSORS":
-                    {
-                        return "ROCK";
-
-                    }
-                case "DYNAMITE":
-                    {
-                        return "WATERBOMB";
-                    }
-                default:
-                    {
-                        return "PAPER";
-                    }
-            }
-        }
-
-        internal static string MirrorStrategy()
-        {
-            return _lastOpponentsMove == null || _lastOpponentsMove == "WATERBOMB" ? "ROCK" : _lastOpponentsMove;
         }
         
         internal static void StoreOurCurrentMove(string myMove)
         {
-            if (_currentRound >= 1)
-            {
-                _ourMoves.Add(myMove);
-            }
+            if (_currentRound >= 1) _ourMoves.Add(myMove);
         }
 
         internal static string GetResultOfLastRound()
@@ -150,7 +106,7 @@ namespace BotExample
                     _results.Add("DRAW");
                     return "DRAW";
                 }
-                else if (DidIWin() == true)
+                else if (DidIWin())
                 { 
                     _results.Add("WIN");
                     return "WIN";
@@ -166,76 +122,23 @@ namespace BotExample
 
         public static bool DidIWin()
         {
-            string lastResult = (_ourMoves[_currentRound - 1] + _lastOpponentsMove);
+            string lastResult = _ourMoves[_currentRound - 1] + _lastOpponentsMove;
             int position = 0;
             for (position = 0; position < winList.Length; position++)
             {
-                if (winList[position] == lastResult)
-                {
-                    return true;
-                }
-
+                if (winList[position] == lastResult) return true;
             }
             return false;
         }
 
         internal static string GetMove()
         {
-            string ourMove = SwitchStrategies();
+            var ourMove = SwitchStrategies();
             StoreOurCurrentMove(ourMove);
             // GetResultOfLastRound is actually returning the result of the current Round...
             GetResultOfLastRound();
             _currentRound++;
-            _results.ForEach(i => Console.WriteLine(i));
             return ourMove;
-        }
-
-        internal static bool IsMirrorBot()
-        {
-            try
-            {
-                string expectedMirr = "ROCKROCKROCK";
-                string firstThree = "";
-                if (_opponentsMoves.Count >= 3)
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        firstThree += _opponentsMoves[i];
-                    }
-                }
-                if (expectedMirr == firstThree)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        internal static string RandomStrategy()
-        {
-            int rnd = random.Next(3);
-            switch (rnd)
-            {
-                case 0:
-                    {
-                        return "ROCK";
-                    }
-                case 1:
-                    {
-                        return "SCISSORS";
-                    }
-                default:
-                    {
-                        return "PAPER";
-                    }
-            }
         }
     }
 }
