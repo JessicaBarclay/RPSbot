@@ -16,15 +16,12 @@ namespace BotExample
         public static string mockedResult;
         public static int _currentRound;
         public static string[] winList;
-        private static readonly Results _Results = new Results { 
-                                                                    Win = 0,
-                                                                    Lose = 0,
-                                                                    Draw = 0
-                                                                };
-        private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
-        private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
-        private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
-        private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
+        private static readonly Results _Results = 
+            new Results { 
+                            Win = 0,
+                            Lose = 0,
+                            Draw = 0
+                        };
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
@@ -78,17 +75,17 @@ namespace BotExample
                 case 0:
                     {
                         Console.WriteLine("---------> Direct <---------");
-                        return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
+                        return "ROCK";
                     }
                 case 1:
                     {
                         Console.WriteLine("---------> Mirror <---------");
-                        return _MirrorStrategy.GetMove(_lastOpponentsMove);
+                        return "PAPER";
                     }
                 default:
                     {
                         Console.WriteLine("---------> Random <---------");
-                        return _RandomStrategy.GetMove();
+                        return "SCISSORS";
                     }
             }
         }
@@ -104,16 +101,19 @@ namespace BotExample
             {
                 if (_Results.ourMoves[_currentRound - 1] == _lastOpponentsMove)
                 {
+                    _Results.ListOfResults.Add("DRAW");
                     _Results.Draw += 1;
                     return "DRAW";
                 }
                 else if (DidIWin())
-                { 
+                {
+                    _Results.ListOfResults.Add("WIN");
                     _Results.Win += 1;
                     return "WIN";
                 }
                 else
                 {
+                    _Results.ListOfResults.Add("LOSE");
                     _Results.Lose += 1;
                     return "LOSE";
                 }
@@ -134,12 +134,12 @@ namespace BotExample
 
         internal static string GetMove()
         {
-            Console.WriteLine(_Results.Win);
-            Console.WriteLine(_Results.Lose);
-            Console.WriteLine(_Results.Draw);
+            Console.WriteLine("Round " + _currentRound);
+            Console.WriteLine("Win:  " + _Results.Win);
+            Console.WriteLine("Lose: " + _Results.Lose);
+            Console.WriteLine("Draw: " + _Results.Draw);
             var ourMove = SwitchStrategies();
             StoreOurCurrentMove(ourMove);
-            // GetResultOfLastRound is actually returning the result of the current Round...
             GetResultOfLastRound();
             _currentRound++;
             return ourMove;
