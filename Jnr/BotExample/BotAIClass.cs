@@ -16,6 +16,11 @@ namespace BotExample
         public static string mockedResult;
         public static int _currentRound;
         public static string[] winList;
+        private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
+        private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
+        private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
+        private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
+
         private static readonly Results _Results = 
             new Results { 
                             Win = 0,
@@ -75,21 +80,21 @@ namespace BotExample
                 case 0:
                     {
                         Console.WriteLine("---------> Direct <---------");
-                        return "ROCK";
+                        return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
                     }
                 case 1:
                     {
                         Console.WriteLine("---------> Mirror <---------");
-                        return "PAPER";
+                        return _MirrorStrategy.GetMove(_lastOpponentsMove);
                     }
                 default:
                     {
                         Console.WriteLine("---------> Random <---------");
-                        return "SCISSORS";
+                        return _RandomStrategy.GetMove();
                     }
             }
         }
-        
+
         internal static void StoreOurCurrentMove(string myMove)
         {
             if (_currentRound >= 1) _Results.ourMoves.Add(myMove);
