@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 
 namespace BotExample
 {
@@ -74,27 +75,20 @@ namespace BotExample
             return SwitchStrategies();
         }
 
+        internal static bool CalculateWinLossDifference()
+        {
+            return _Results.Lose - _Results.Win >= 3;
+        }
+
         internal static string SwitchStrategies()
         {
-            int rnd = random.Next(3);
-            switch (rnd)
+            if (CalculateWinLossDifference())
             {
-                case 0:
-                    {
-                        Console.WriteLine("Strategy: Direct");
-                        return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
-                    }
-                case 1:
-                    {
-                        Console.WriteLine("Strategy: Mirror");
-                        return _MirrorStrategy.GetMove(_lastOpponentsMove);
-                    }
-                default:
-                    {
-                        Console.WriteLine("Strategy: Random");
-                        return _RandomStrategy.GetMove();
-                    }
+                Console.WriteLine("Strategy: Direct");
+                return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
             }
+                Console.WriteLine("Strategy: Mirror");
+                return _MirrorStrategy.GetMove(_lastOpponentsMove);
         }
 
         internal static void StoreOurCurrentMove(string myMove)
