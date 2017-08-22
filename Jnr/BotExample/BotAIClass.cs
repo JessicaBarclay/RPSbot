@@ -14,7 +14,6 @@ namespace BotExample
         public static int _ourDynamite;
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
-        public static string mockedResult;
         public static int _currentRound;
         public static string[] winList;
         public static string ourPreviousMove;
@@ -23,12 +22,7 @@ namespace BotExample
         private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
         private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
 
-        private static readonly Results _Results = 
-            new Results { 
-                            Win = 0,
-                            Lose = -1,
-                            Draw = 0
-                        };
+        private static Results _Results;
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
@@ -38,14 +32,20 @@ namespace BotExample
             _ourDynamite = dynamite;
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
-            mockedResult = "DRAW";
+            _lastOpponentsMove = "ROCK";
             _currentRound = 0;
-            ourPreviousMove = "";
+            ourPreviousMove = "ROCK";
             winList = new string[] {
                                     "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
                                     "ROCKWATERBOMB","ROCKSCISSORS", "PAPERWATERBOMB","PAPERROCK",
                                     "SCISSORSWATERBOMB","SCISSORSPAPER", "WATERBOMBDYNAMITE"
                                    };
+            _Results = new Results
+            {
+                Win = 0,
+                Lose = 0,
+                Draw = 0
+            };
         }
       
         public static void DecrementOpponentsDynamiteCount()
@@ -67,7 +67,7 @@ namespace BotExample
 
         internal static string responseIfDraw()
         {
-            if (_ourDynamite != 0 && mockedResult == "DRAW")
+            if (_ourDynamite != 0 && _lastOpponentsMove == ourPreviousMove)
             {
                 _ourDynamite--;
                 return "DYNAMITE";
@@ -135,7 +135,8 @@ namespace BotExample
         internal static string GetMove()
         {
             _currentRound++;
-            var ourMove = SwitchStrategies();
+            
+            var ourMove = responseIfDraw();
             StoreOurCurrentMove(ourMove);
             GetResultOfLastRound();
             ourPreviousMove = ourMove;
