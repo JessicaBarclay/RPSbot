@@ -22,6 +22,7 @@ namespace BotExample
         private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
         private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
 
+
         private static Results _Results;
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
@@ -71,16 +72,19 @@ namespace BotExample
             {
                 return "DYNAMITE";
             }
-            if (_lastOpponentsMove == ourPreviousMove)
+            if (_pointstoWin == 2 * _ourDynamite)
             {
-                if (_ourDynamite != 0 && ourPreviousMove != "DYNAMITE")
-                {
-                    _ourDynamite--;
-                    return "DYNAMITE";
-                }
-                return "WATERBOMB";
-
+                return FinalSalvo();
             }
+                if (_ourDynamite != 0 && _lastOpponentsMove == ourPreviousMove)
+                {
+                    if (ourPreviousMove != "DYNAMITE")
+                    {
+                        _ourDynamite--;
+                        return "DYNAMITE";
+                    }
+                    return "WATERBOMB";
+                }
             return SwitchStrategies();
         }
 
@@ -99,6 +103,15 @@ namespace BotExample
 
             Console.WriteLine("Strategy: Mirror");
             return _MirrorStrategy.GetMove(_lastOpponentsMove);
+        }
+
+        internal static string FinalSalvo()
+        { 
+                if (ourPreviousMove == "DYNAMITE")
+                {
+                    return "ROCK";
+                }
+            return "DYNAMITE";
         }
 
         internal static void StoreOurCurrentMove(string myMove)
