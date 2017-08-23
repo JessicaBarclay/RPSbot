@@ -32,9 +32,9 @@ namespace BotExample
             _ourDynamite = dynamite;
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
-            _lastOpponentsMove = "ROCK";
+            _lastOpponentsMove = "";
             _currentRound = 0;
-            ourPreviousMove = "ROCK";
+            ourPreviousMove = "";
             winList = new string[] {
                                     "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
                                     "ROCKWATERBOMB","ROCKSCISSORS", "PAPERWATERBOMB","PAPERROCK",
@@ -87,8 +87,9 @@ namespace BotExample
                 Console.WriteLine("Strategy: Direct");
                 return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
             }
-                Console.WriteLine("Strategy: Mirror");
-                return _MirrorStrategy.GetMove(_lastOpponentsMove);
+
+            Console.WriteLine("Strategy: Mirror");
+            return _MirrorStrategy.GetMove(_lastOpponentsMove);
         }
 
         internal static void StoreOurCurrentMove(string myMove)
@@ -135,7 +136,6 @@ namespace BotExample
         internal static string GetMove()
         {
             _currentRound++;
-            
             var ourMove = responseIfDraw();
             StoreOurCurrentMove(ourMove);
             GetResultOfLastRound();
