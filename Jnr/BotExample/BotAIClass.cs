@@ -45,7 +45,8 @@ namespace BotExample
             {
                 Win = 0,
                 Lose = 0,
-                Draw = 0
+                Draw = 0,
+
             };
         }
       
@@ -72,7 +73,7 @@ namespace BotExample
             {
                 return "DYNAMITE";
             }
-            if (_pointstoWin == 2 * _ourDynamite)
+            if (_pointstoWin - _Results.Win == 2 * _ourDynamite)
             {
                 return FinalSalvo();
             }
@@ -168,6 +169,7 @@ namespace BotExample
                 Console.WriteLine("Win:  " + _Results.Win);
                 Console.WriteLine("Lose: " + _Results.Lose);
                 Console.WriteLine("Draw: " + _Results.Draw);
+                Console.WriteLine("Points to win " + _pointstoWin);
                 Console.WriteLine("-----------------------------------");
 
                 return ourMove;
