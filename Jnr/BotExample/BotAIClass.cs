@@ -135,17 +135,25 @@ namespace BotExample
 
         internal static string GetMove()
         {
-            _currentRound++;
-            var ourMove = responseIfDraw();
-            StoreOurCurrentMove(ourMove);
-            GetResultOfLastRound();
-            ourPreviousMove = ourMove;
-            Console.WriteLine("Round " + _currentRound);
-            Console.WriteLine("Win:  " + _Results.Win);
-            Console.WriteLine("Lose: " + _Results.Lose);
-            Console.WriteLine("Draw: " + _Results.Draw);
-            Console.WriteLine("-----------------------------------");
-            return ourMove;
+            try
+            {
+                _currentRound++;
+                var ourMove = responseIfDraw();
+                StoreOurCurrentMove(ourMove);
+                GetResultOfLastRound();
+                ourPreviousMove = ourMove;
+                Console.WriteLine("Round " + _currentRound);
+                Console.WriteLine("Win:  " + _Results.Win);
+                Console.WriteLine("Lose: " + _Results.Lose);
+                Console.WriteLine("Draw: " + _Results.Draw);
+                Console.WriteLine("-----------------------------------");
+                return ourMove;
+            }
+            catch
+            {
+                return "ROCK";
+            }
+
         }
     }
 }
