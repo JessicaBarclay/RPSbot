@@ -67,10 +67,19 @@ namespace BotExample
 
         internal static string responseIfDraw()
         {
-            if (_ourDynamite != 0 && _lastOpponentsMove == ourPreviousMove)
+            if (_currentRound == 0)
             {
-                _ourDynamite--;
                 return "DYNAMITE";
+            }
+            if (_lastOpponentsMove == ourPreviousMove)
+            {
+                if (_ourDynamite != 0 && ourPreviousMove != "DYNAMITE")
+                {
+                    _ourDynamite--;
+                    return "DYNAMITE";
+                }
+                return "WATERBOMB";
+
             }
             return SwitchStrategies();
         }
@@ -147,6 +156,7 @@ namespace BotExample
                 Console.WriteLine("Lose: " + _Results.Lose);
                 Console.WriteLine("Draw: " + _Results.Draw);
                 Console.WriteLine("-----------------------------------");
+
                 return ourMove;
             }
             catch
