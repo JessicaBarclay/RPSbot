@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 
 namespace BotExample
 {
     internal static class BotAIClass
     {
-        private static readonly Random random = new System.Random(Environment.TickCount);
-        private static string _opponentName;
         private static string _lastOpponentsMove;
-        private static int _pointstoWin;
-        private static int _maxRounds;
         public static int _ourDynamite;
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
@@ -18,17 +13,12 @@ namespace BotExample
         public static string[] winList;
         public static string ourPreviousMove;
         private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
-        private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
         private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
-        private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
 
         private static Results _Results;
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
-            _opponentName = opponentName;
-            _pointstoWin = pointstoWin;
-            _maxRounds = maxRounds;
             _ourDynamite = dynamite;
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
@@ -75,21 +65,15 @@ namespace BotExample
             return SwitchStrategies();
         }
 
-        internal static bool CalculateWinLossDifference()
+        internal static bool LosingByThreePoints()
         {
             return _Results.Lose - _Results.Win >= 3;
         }
 
         internal static string SwitchStrategies()
         {
-            if (CalculateWinLossDifference())
-            {
-                Console.WriteLine("Strategy: Direct");
-                return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
-            }
-
-            Console.WriteLine("Strategy: Mirror");
-            return _MirrorStrategy.GetMove(_lastOpponentsMove);
+            return LosingByThreePoints() ? 
+            _DirectCounterStrategy.GetMove(_lastOpponentsMove) : _MirrorStrategy.GetMove(_lastOpponentsMove);
         }
 
         internal static void StoreOurCurrentMove(string myMove)
@@ -99,27 +83,23 @@ namespace BotExample
 
         internal static string GetResultOfLastRound()
         {
-            if (_currentRound >= 1)
+            if (ourPreviousMove == _lastOpponentsMove)
             {
-                if (ourPreviousMove == _lastOpponentsMove)
-                {
-                    _Results.ListOfResults.Add("DRAW");
-                    _Results.Draw += 1;
-                    return "DRAW";
-                }
-
-                if (DidIWin())
-                {
-                    _Results.ListOfResults.Add("WIN");
-                    _Results.Win += 1;
-                    return "WIN";
-                }
-
-                _Results.ListOfResults.Add("LOSE");
-                _Results.Lose += 1;
-                return "LOSE";
+                _Results.ListOfResults.Add("DRAW");
+                _Results.Draw += 1;
+                return "DRAW";
             }
-            return null;
+
+            if (DidIWin())
+            {
+                _Results.ListOfResults.Add("WIN");
+                _Results.Win += 1;
+                return "WIN";
+            }
+
+            _Results.ListOfResults.Add("LOSE");
+            _Results.Lose += 1;
+            return "LOSE";
         }
 
         public static bool DidIWin()
