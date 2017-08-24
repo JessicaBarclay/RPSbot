@@ -15,7 +15,7 @@
                         firstThree += opponentsMoves[i];
                     }
                 }
-                return expectedMirr == firstThree ? true : false;
+                return expectedMirr == firstThree;
             }
             catch
             {

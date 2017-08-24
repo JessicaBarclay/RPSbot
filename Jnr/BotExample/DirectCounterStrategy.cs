@@ -1,9 +1,12 @@
-﻿namespace BotExample
+﻿using System;
+
+namespace BotExample
 {
     public class DirectCounterStrategy
     {
         public string GetMove(string lastOpponentsMove)
         {
+            Console.WriteLine("Strategy: Direct");
             switch (lastOpponentsMove)
             {
                 case "PAPER":
