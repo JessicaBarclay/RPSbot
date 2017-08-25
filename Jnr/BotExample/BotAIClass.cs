@@ -55,14 +55,19 @@ namespace BotExample
             StoreOpponentsMoves();
         }
 
-        internal static string responseIfDraw()
+        internal static string DetermineMove()
         {
-            if (_ourDynamite != 0 && _lastOpponentsMove == ourPreviousMove)
+            if (_ourDynamite != 0 && DidIDraw())
             {
                 _ourDynamite--;
                 return "DYNAMITE";
             }
             return SwitchStrategies();
+        }
+
+        internal static bool DidIDraw()
+        {
+            return _lastOpponentsMove == ourPreviousMove;
         }
 
         internal static bool CalculateWinLossDifference()
@@ -123,7 +128,7 @@ namespace BotExample
             try
             {
                 _currentRound++;
-                var ourMove = responseIfDraw();
+                var ourMove = DetermineMove();
                 StoreOurCurrentMove(ourMove);
                 GetResultOfLastRound();
                 ourPreviousMove = ourMove;
