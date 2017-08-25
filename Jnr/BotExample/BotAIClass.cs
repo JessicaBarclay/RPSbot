@@ -79,22 +79,19 @@ namespace BotExample
         {
             if (CalculateWinLossDifference())
             {
-                Console.WriteLine("Strategy: Direct");
                 return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
             }
-
-            Console.WriteLine("Strategy: Mirror");
             return _MirrorStrategy.GetMove(_lastOpponentsMove);
         }
 
         internal static void StoreOurCurrentMove(string myMove)
         {
-            if (_currentRound >= 1) _Results.ourMoves.Add(myMove);
+            _Results.ourMoves.Add(myMove);
         }
 
         internal static string GetResultOfLastRound()
         {
-            if (ourPreviousMove == _lastOpponentsMove)
+            if (DidIDraw())
             {
                 _Results.ListOfResults.Add("DRAW");
                 _Results.Draw += 1;
