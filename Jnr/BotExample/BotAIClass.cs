@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BotExample
 {
-    internal static class BotAIClass
+    public static class BotAIClass
     {
         private static string _lastOpponentsMove;
         public static int _ourDynamite;
@@ -79,9 +79,9 @@ namespace BotExample
         {
             if (CalculateWinLossDifference())
             {
-                return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
+                return _MirrorStrategy.GetMove(_lastOpponentsMove);
             }
-            return _MirrorStrategy.GetMove(_lastOpponentsMove);
+            return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
         }
 
         internal static void StoreOurCurrentMove(string myMove)
@@ -140,7 +140,6 @@ namespace BotExample
             {
                 return "ROCK";
             }
-
         }
     }
 }
