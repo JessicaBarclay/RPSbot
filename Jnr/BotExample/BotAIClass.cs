@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 
 namespace BotExample
 {
-    internal static class BotAIClass
+    public static class BotAIClass
     {
-        private static readonly Random random = new System.Random(Environment.TickCount);
-        private static string _opponentName;
         private static string _lastOpponentsMove;
-        private static int _pointstoWin;
-        private static int _maxRounds;
         public static int _ourDynamite;
         public static int opponentsDynamiteCount;
         private static List<string> _opponentsMoves;
@@ -18,24 +13,19 @@ namespace BotExample
         public static string[] winList;
         public static string ourPreviousMove;
         private static readonly MirrorStrategy _MirrorStrategy = new MirrorStrategy();
-        private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
         private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
-        private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
 
         private static Results _Results;
 
         internal static void SetStartValues(string opponentName, int pointstoWin, int maxRounds, int dynamite)
         {
-            _opponentName = opponentName;
-            _pointstoWin = pointstoWin;
-            _maxRounds = maxRounds;
             _ourDynamite = dynamite;
             opponentsDynamiteCount = dynamite;
             _opponentsMoves = new List<string>();
             _lastOpponentsMove = "";
             _currentRound = 0;
             ourPreviousMove = "";
-            winList = new string[] {
+            winList = new [] {
                                     "DYNAMITEROCK","DYNAMITEPAPER","DYNAMITESCISSORS",
                                     "ROCKWATERBOMB","ROCKSCISSORS", "PAPERWATERBOMB","PAPERROCK",
                                     "SCISSORSWATERBOMB","SCISSORSPAPER", "WATERBOMBDYNAMITE"
@@ -65,14 +55,19 @@ namespace BotExample
             StoreOpponentsMoves();
         }
 
-        internal static string responseIfDraw()
+        internal static string DetermineMove()
         {
-            if (_ourDynamite != 0 && _lastOpponentsMove == ourPreviousMove)
+            if (_ourDynamite != 0 && DidIDraw())
             {
                 _ourDynamite--;
                 return "DYNAMITE";
             }
             return SwitchStrategies();
+        }
+
+        internal static bool DidIDraw()
+        {
+            return _lastOpponentsMove == ourPreviousMove;
         }
 
         internal static bool CalculateWinLossDifference()
@@ -84,49 +79,41 @@ namespace BotExample
         {
             if (CalculateWinLossDifference())
             {
-                Console.WriteLine("Strategy: Direct");
-                return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
+                return _MirrorStrategy.GetMove(_lastOpponentsMove);
             }
-
-            Console.WriteLine("Strategy: Mirror");
-            return _MirrorStrategy.GetMove(_lastOpponentsMove);
+            return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
         }
 
         internal static void StoreOurCurrentMove(string myMove)
         {
-            if (_currentRound >= 1) _Results.ourMoves.Add(myMove);
+            _Results.ourMoves.Add(myMove);
         }
 
         internal static string GetResultOfLastRound()
         {
-            if (_currentRound >= 1)
+            if (DidIDraw())
             {
-                if (ourPreviousMove == _lastOpponentsMove)
-                {
-                    _Results.ListOfResults.Add("DRAW");
-                    _Results.Draw += 1;
-                    return "DRAW";
-                }
-
-                if (DidIWin())
-                {
-                    _Results.ListOfResults.Add("WIN");
-                    _Results.Win += 1;
-                    return "WIN";
-                }
-
-                _Results.ListOfResults.Add("LOSE");
-                _Results.Lose += 1;
-                return "LOSE";
+                _Results.ListOfResults.Add("DRAW");
+                _Results.Draw += 1;
+                return "DRAW";
             }
-            return null;
+
+            if (DidIWin())
+            {
+                _Results.ListOfResults.Add("WIN");
+                _Results.Win += 1;
+                return "WIN";
+            }
+
+            _Results.ListOfResults.Add("LOSE");
+            _Results.Lose += 1;
+            return "LOSE";
         }
 
         public static bool DidIWin()
         {
             string lastResult = ourPreviousMove + _lastOpponentsMove;
-            int position;
-            for (position = 0; position < winList.Length; position++)
+            for (var position = 0; position < winList.Length; position++)
             {
                 if (winList[position] == lastResult) return true;
             }
@@ -138,7 +125,7 @@ namespace BotExample
             try
             {
                 _currentRound++;
-                var ourMove = responseIfDraw();
+                var ourMove = DetermineMove();
                 StoreOurCurrentMove(ourMove);
                 GetResultOfLastRound();
                 ourPreviousMove = ourMove;
@@ -153,7 +140,6 @@ namespace BotExample
             {
                 return "ROCK";
             }
-
         }
     }
 }
