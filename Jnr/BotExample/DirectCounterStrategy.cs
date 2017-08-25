@@ -15,10 +15,10 @@
                     return "ROCK";
 
                 }
-                //case "DYNAMITE":
-                //{
-                //    return "WATERBOMB";
-                //}
+                case "DYNAMITE":
+                {
+                    return "WATERBOMB";
+                }
                 default:
                 {
                     return "PAPER";

@@ -21,6 +21,8 @@ namespace BotExample
         private static readonly RandomStrategy _RandomStrategy = new RandomStrategy();
         private static readonly DirectCounterStrategy _DirectCounterStrategy = new DirectCounterStrategy();
         private static readonly DetectMirrorBot _DetectMirrorBot = new DetectMirrorBot();
+        private static readonly FinalSalvo _FinalSalvo = new FinalSalvo();
+
 
 
         private static Results _Results;
@@ -67,25 +69,29 @@ namespace BotExample
             StoreOpponentsMoves();
         }
 
-        internal static string responseIfDraw()
+        internal static string DetermineMove()
         {
+            if (ourPreviousMove == "DYNAMITE")
+            {
+                _ourDynamite--;
+            }
             if (_currentRound == 0)
             {
                 return "DYNAMITE";
             }
-            if (_pointstoWin - _Results.Win == 2 * _ourDynamite || _pointstoWin - _Results.Lose == 2 * _ourDynamite)
+            if ((_pointstoWin - ( _Results.Win + _Results.Draw )) <= (2 * _ourDynamite) || (_pointstoWin - ( _Results.Lose + _Results.Draw )) <= (2 * _ourDynamite))
             {
-                return FinalSalvo();
+                return _FinalSalvo.Fire(ourPreviousMove);
             }
-                if (_ourDynamite != 0 && _lastOpponentsMove == ourPreviousMove)
+            if (_ourDynamite != 0 && _lastOpponentsMove == ourPreviousMove)
+            {
+                if (ourPreviousMove != "DYNAMITE")
                 {
-                    if (ourPreviousMove != "DYNAMITE")
-                    {
-                        _ourDynamite--;
-                        return "DYNAMITE";
-                    }
-                    return "WATERBOMB";
+                    return "DYNAMITE";
                 }
+                Console.WriteLine("Waterbomb as part of draw strategy");
+                return "WATERBOMB";
+            }
             return SwitchStrategies();
         }
 
@@ -98,22 +104,15 @@ namespace BotExample
         {
             if (CalculateWinLossDifference())
             {
-                Console.WriteLine("Strategy: Direct");
-                return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
+                Console.WriteLine("Strategy: Mirror");
+                return _MirrorStrategy.GetMove(_lastOpponentsMove);
             }
 
-            Console.WriteLine("Strategy: Mirror");
-            return _MirrorStrategy.GetMove(_lastOpponentsMove);
+            Console.WriteLine("Strategy: Direct");
+            return _DirectCounterStrategy.GetMove(_lastOpponentsMove);
         }
 
-        internal static string FinalSalvo()
-        { 
-                if (ourPreviousMove == "DYNAMITE")
-                {
-                    return "ROCK";
-                }
-            return "DYNAMITE";
-        }
+
 
         internal static void StoreOurCurrentMove(string myMove)
         {
@@ -161,7 +160,7 @@ namespace BotExample
             try
             {
                 _currentRound++;
-                var ourMove = responseIfDraw();
+                var ourMove = DetermineMove();
                 StoreOurCurrentMove(ourMove);
                 GetResultOfLastRound();
                 ourPreviousMove = ourMove;
@@ -169,7 +168,7 @@ namespace BotExample
                 Console.WriteLine("Win:  " + _Results.Win);
                 Console.WriteLine("Lose: " + _Results.Lose);
                 Console.WriteLine("Draw: " + _Results.Draw);
-                Console.WriteLine("Points to win " + _pointstoWin);
+                Console.WriteLine("Points to win " + ( _pointstoWin - _Results.Win));
                 Console.WriteLine("Remaining dynamite: " + _ourDynamite);
                 Console.WriteLine("-----------------------------------");
 
